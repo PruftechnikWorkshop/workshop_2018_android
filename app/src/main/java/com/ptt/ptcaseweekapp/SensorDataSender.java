@@ -2,15 +2,10 @@ package com.ptt.ptcaseweekapp;
 
 import android.util.Log;
 
-import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import com.google.gson.Gson;
 
@@ -30,7 +25,7 @@ public class SensorDataSender extends Thread {
 
     private ArrayList<SensorDataItem> m_aDataToSend = new ArrayList<>();
 
-    SensorDataSender(String a_strUrl)
+    SensorDataSender( String a_strUrl )
     {
         m_strUrl = a_strUrl;
     }
@@ -39,19 +34,18 @@ public class SensorDataSender extends Thread {
     public void run()
     {
         super.run();
-        Log.d("sender", "SensorDataSender.run()" + m_strUrl);
+        Log.d("sender", "SensorDataSender.run()" + m_strUrl );
 
-        while (m_bRunning)
+        while ( m_bRunning )
         {
             Log.d("sender", "Loop");
             try
             {
-                Thread.sleep(iSEND_INTERVAL_MS);
+                Thread.sleep( iSEND_INTERVAL_MS );
             }
-            catch (InterruptedException e)
+            catch ( InterruptedException e )
             {
-                e.printStackTrace();
-                Log.d("sender", "Interrupt");
+                Log.d("sender", "Interrupt ", e);
             }
 
             SendData();
@@ -63,7 +57,7 @@ public class SensorDataSender extends Thread {
         m_bRunning = false;
     }
 
-    private synchronized void SendData()
+    private void SendData()
     {
         if(m_aDataToSend.isEmpty())
         {
@@ -72,65 +66,50 @@ public class SensorDataSender extends Thread {
         }
 
         Gson gson = new Gson();
+        String jsonData;
 
-        Log.d("sender", "SendData(): Sending:" + gson.toJson(m_aDataToSend));
-
-
-        String jsonData = gson.toJson(m_aDataToSend);
-        m_aDataToSend.clear();
+        synchronized (this)
+        {
+            jsonData = gson.toJson(m_aDataToSend);
+            m_aDataToSend.clear();
+        }
 
         try
         {
+            Log.d("sender", "SendData(): Sending:" + jsonData );
             SendJsonToService(jsonData);
         }
-        catch (IOException e)
+        catch ( IOException e )
         {
-           Log.e("sender", "Exception", e);
+           Log.e("sender", "Exception during sending: ", e);
         }
     }
 
-    private void SendJsonToService(String jsonData) throws IOException {
-//        URL url = new URL(m_strUrl);
-//        URLConnection conn = url.openConnection();
-//
-//        conn.setDoOutput(true);
-//
-//
-//        OutputStreamWriter writer = new OutputStreamWriter(conn.getOutputStream());
-//
-//        writer.write(jsonData);
-//        writer.flush();
-////
-////        String line;
-////        BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-////
-////        while ((line = reader.readLine()) != null) {
-////            System.out.println(line);
-////        }
-////        reader.close();
-//        writer.close();
+    private void SendJsonToService(String jsonData) throws IOException
+    {
+        byte[] postData = jsonData.getBytes();
+        int postDataLength = postData.length;
+        URL url = new URL( m_strUrl );
 
-
-        byte[] postData       = jsonData.getBytes();
-        int    postDataLength = postData.length;
-        String request        = m_strUrl;
-        URL    url            = new URL( request );
-        HttpURLConnection conn= (HttpURLConnection) url.openConnection();
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setDoOutput( true );
-        conn.setInstanceFollowRedirects( false );
+        conn.setInstanceFollowRedirects(false);
         conn.setRequestMethod( "POST" );
-        conn.setRequestProperty( "Content-Type", "application/x-www-form-urlencoded");
-        conn.setRequestProperty( "charset", "utf-8");
-        conn.setRequestProperty( "Content-Length", Integer.toString( postDataLength ));
+        conn.setRequestProperty( "Content-Type", "application/json" );
+        conn.setRequestProperty( "charset", "utf-8" );
+        conn.setRequestProperty( "Content-Length", Integer.toString( postDataLength ) );
         conn.setUseCaches( false );
 
-        DataOutputStream wr = new DataOutputStream( conn.getOutputStream());
-        wr.write( postData );
+        DataOutputStream writer = new DataOutputStream( conn.getOutputStream() );
+        writer.write( postData );
+        Log.i( "sender", postDataLength + " bytes of data sent." );
+
+        Log.i( "sender", "Response: " + conn.getResponseCode() + " " + conn.getResponseMessage() );
     }
 
-    public synchronized void AddData(SensorDataItem a_fData)
+    public synchronized void AddDataToSend( SensorDataItem a_fData )
     {
-        Log.d("sender", "Added " + a_fData + "to buffer");
+        Log.d("sender", "Added " + a_fData.toString() + " to buffer");
         m_aDataToSend.add(a_fData);
     }
 }

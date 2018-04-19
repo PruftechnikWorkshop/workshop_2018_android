@@ -14,4 +14,10 @@ public class SensorDataItem
         timeStamp = a_lTimestamp;
         signalValue = a_fValue;
     }
+
+    @Override
+    public String toString()
+    {
+        return new String("SensorDataItem( " + timeStamp + ", " + signalValue + " )");
+    }
 }
