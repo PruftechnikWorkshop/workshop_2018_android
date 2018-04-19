@@ -6,18 +6,18 @@ package com.ptt.ptcaseweekapp;
 
 public class SensorDataItem
 {
-    public long timeStamp = -1;
-    public float signalValue = Float.NaN;
+    private long timeStamp = -1;
+    private float signalValue = Float.NaN;
 
-    public SensorDataItem( long a_lTimestamp, float a_fValue )
+    SensorDataItem(long timeStamp, float signalValue)
     {
-        timeStamp = a_lTimestamp;
-        signalValue = a_fValue;
+        this.timeStamp = timeStamp;
+        this.signalValue = signalValue;
     }
 
     @Override
     public String toString()
     {
-        return new String("SensorDataItem( " + timeStamp + ", " + signalValue + " )");
+        return "SensorDataItem( " + timeStamp + ", " + signalValue + " )";
     }
 }

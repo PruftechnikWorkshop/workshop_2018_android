@@ -1,6 +1,10 @@
 apply plugin: 'com.android.application'
 
 android {
+    signingConfigs {
+        release {
+        }
+    }
     compileSdkVersion 26
     defaultConfig {
         applicationId "com.ptt.ptcaseweekapp"

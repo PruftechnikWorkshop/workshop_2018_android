@@ -1,3 +1,12 @@
 <resources>
-    <string name="app_name">PTCaseWeekApp</string>
+    <string name="app_name">pruftechnikWorkshopAndroid</string>
+
+    <string name="button_start_sending">Start sending</string>
+    <string name="button_stop_sending">Stop sending</string>
+
+    <string name="url_edit_placeholder">Service URL</string>
+    <string name="url_edit_default_value">http://pruftechnik-workshop-balanced-shark.cfapps.io/api/signals/</string>
+
+    <string name="sender_toast_text">%1$d bytes sent. Response: %2$d %3$s</string>
+
 </resources>
